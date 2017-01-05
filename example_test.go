@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"log"
 
-	"golang.org/x/oauth2"
+	"github.com/svigelj/oauth2"
 )
 
 func ExampleConfig() {

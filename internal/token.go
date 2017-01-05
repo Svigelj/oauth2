@@ -1,4 +1,4 @@
-// Copyright 2014 The Go Authors. All rights reserved.
+	// Copyright 2014 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -148,7 +148,7 @@ func providerAuthHeaderWorks(tokenURL string) bool {
 	return true
 }
 
-func RetrieveToken(ctx context.Context, clientID, clientSecret, tokenURL string, v url.Values) (*Token, error) {
+func RetrieveToken(ctx context.Context, clientID, clientSecret, clientResource, tokenURL string, v url.Values) (*Token, error) {
 	hc, err := ContextClient(ctx)
 	if err != nil {
 		return nil, err
@@ -157,6 +157,9 @@ func RetrieveToken(ctx context.Context, clientID, clientSecret, tokenURL string,
 	bustedAuth := !providerAuthHeaderWorks(tokenURL)
 	if bustedAuth && clientSecret != "" {
 		v.Set("client_secret", clientSecret)
+	}
+	if len(clientResource) > 0 {
+		v.Set("resource", clientResource)
 	}
 	req, err := http.NewRequest("POST", tokenURL, strings.NewReader(v.Encode()))
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
-	"golang.org/x/oauth2/internal"
+	"github.com/svigelj/oauth2/internal"
 )
 
 // expiryDelta determines how earlier a token should be considered
@@ -150,7 +150,7 @@ func tokenFromInternal(t *internal.Token) *Token {
 // This token is then mapped from *internal.Token into an *oauth2.Token which is returned along
 // with an error..
 func retrieveToken(ctx context.Context, c *Config, v url.Values) (*Token, error) {
-	tk, err := internal.RetrieveToken(ctx, c.ClientID, c.ClientSecret, c.Endpoint.TokenURL, v)
+	tk, err := internal.RetrieveToken(ctx, c.ClientID, c.ClientSecret, c.Resource, c.Endpoint.TokenURL, v)
 	if err != nil {
 		return nil, err
 	}
