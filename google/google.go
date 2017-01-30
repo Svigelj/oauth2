@@ -163,7 +163,7 @@ func (f *credentialsFile) tokenSource(ctx context.Context, scopes []string) (oau
 // Further information about retrieving access tokens from the GCE metadata
 // server can be found at https://cloud.google.com/compute/docs/authentication.
 func ComputeTokenSource(account string) oauth2.TokenSource {
-	return oauth2.ReuseTokenSource(nil, computeSource{account: account})
+	return oauth2.NewReuseTokenSource(nil, computeSource{account: account})
 }
 
 type computeSource struct {

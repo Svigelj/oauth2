@@ -66,7 +66,7 @@ type Config struct {
 // TokenSource returns a JWT TokenSource using the configuration
 // in c and the HTTP client from the provided context.
 func (c *Config) TokenSource(ctx context.Context) oauth2.TokenSource {
-	return oauth2.ReuseTokenSource(nil, jwtSource{ctx, c})
+	return oauth2.NewReuseTokenSource(nil, jwtSource{ctx, c})
 }
 
 // Client returns an HTTP client wrapping the context's

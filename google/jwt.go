@@ -42,7 +42,7 @@ func JWTAccessTokenSourceFromJSON(jsonKey []byte, audience string) (oauth2.Token
 	if err != nil {
 		return nil, err
 	}
-	return oauth2.ReuseTokenSource(tok, ts), nil
+	return oauth2.NewReuseTokenSource(tok, ts), nil
 }
 
 type jwtAccessTokenSource struct {

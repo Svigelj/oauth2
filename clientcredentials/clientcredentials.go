@@ -65,7 +65,7 @@ func (c *Config) TokenSource(ctx context.Context) oauth2.TokenSource {
 		ctx:  ctx,
 		conf: c,
 	}
-	return oauth2.ReuseTokenSource(nil, source)
+	return oauth2.NewReuseTokenSource(nil, source)
 }
 
 type tokenSource struct {
@@ -76,7 +76,7 @@ type tokenSource struct {
 // Token refreshes the token by using a new client credentials request.
 // tokens received this way do not include a refresh token
 func (c *tokenSource) Token() (*oauth2.Token, error) {
-	tk, err := internal.RetrieveToken(c.ctx, c.conf.ClientID, c.conf.ClientSecret, c.conf.TokenURL, url.Values{
+	tk, err := internal.RetrieveToken(c.ctx, c.conf.ClientID, c.conf.ClientSecret, "", c.conf.TokenURL, url.Values{
 		"grant_type": {"client_credentials"},
 		"scope":      internal.CondVal(strings.Join(c.conf.Scopes, " ")),
 	})

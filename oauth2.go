@@ -208,7 +208,7 @@ func (c *Config) TokenSource(ctx context.Context, t *Token) TokenSource {
 	if t != nil {
 		tkr.refreshToken = t.RefreshToken
 	}
-	return &reuseTokenSource{
+	return &ReuseTokenSource{
 		t:   t,
 		new: tkr,
 	}
@@ -249,17 +249,21 @@ func (tf *tokenRefresher) Token() (*Token, error) {
 // and validates its expiry before each call to retrieve it with
 // Token. If it's expired, it will be auto-refreshed using the
 // new TokenSource.
-type reuseTokenSource struct {
+type ReuseTokenSource struct {
 	new TokenSource // called when t is expired.
 
 	mu sync.Mutex // guards t
 	t  *Token
 }
 
+func (s *ReuseTokenSource) GetToken() Token {
+	return *s.t
+}
+
 // Token returns the current token if it's still valid, else will
 // refresh the current token (using r.Context for HTTP client
 // information) and return the new one.
-func (s *reuseTokenSource) Token() (*Token, error) {
+func (s *ReuseTokenSource) Token() (*Token, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.t.Valid() {
@@ -310,7 +314,7 @@ func NewClient(ctx context.Context, src TokenSource) *http.Client {
 	return &http.Client{
 		Transport: &Transport{
 			Base:   internal.ContextTransport(ctx),
-			Source: ReuseTokenSource(nil, src),
+			Source: NewReuseTokenSource(nil, src),
 		},
 	}
 }
@@ -327,18 +331,18 @@ func NewClient(ctx context.Context, src TokenSource) *http.Client {
 // wrapped in a caching version if it isn't one already. This also
 // means it's always safe to wrap ReuseTokenSource around any other
 // TokenSource without adverse effects.
-func ReuseTokenSource(t *Token, src TokenSource) TokenSource {
+func NewReuseTokenSource(t *Token, src TokenSource) TokenSource {
 	// Don't wrap a reuseTokenSource in itself. That would work,
 	// but cause an unnecessary number of mutex operations.
 	// Just build the equivalent one.
-	if rt, ok := src.(*reuseTokenSource); ok {
+	if rt, ok := src.(*ReuseTokenSource); ok {
 		if t == nil {
 			// Just use it directly.
 			return rt
 		}
 		src = rt.new
 	}
-	return &reuseTokenSource{
+	return &ReuseTokenSource{
 		t:   t,
 		new: src,
 	}
